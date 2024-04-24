@@ -3,15 +3,19 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Campobase from './componentes/CampobaseComponent';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
-  return(
-  <SafeAreaProvider>
-    <View style={styles.container}>
-      <Campobase/>
-      <StatusBar style="auto" />
-    </View>
-  </SafeAreaProvider>
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <View style={styles.container}>
+          <Campobase />
+          <StatusBar style="auto" />
+        </View>
+      </NavigationContainer>
+
+    </SafeAreaProvider>
   );
 }
 

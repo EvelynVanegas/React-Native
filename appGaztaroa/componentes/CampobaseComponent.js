@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Platform } from 'react-native';
+import { ScrollView, View, Platform, StyleSheet, Image, Text } from 'react-native';
 import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Home from './HomeComponent';
 import QuienesSomos from './QuienesSomosComponent';
 import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
 import Contacto from './ContactoComponent';
+import { Icon } from '@rneui/themed';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -110,25 +112,82 @@ function ContactoNavegador() {
 function DrawerNavegador() {
   return (
     <Drawer.Navigator
-      initialRouteName="Campo base"
+      initialRouteName="Home"
+      drawerContent={props => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: false,
         drawerStyle: {
           backgroundColor: '#c2d3da',
         },
-        drawerActiveTintColor: '#015afc',
-        drawerInactiveTintColor: '#000',
-        drawerContentContainerStyle: {
-          paddingLeft: 20,
-          paddingTop: 40,
-        },
       }}
     >
-      <Drawer.Screen name="Campo base" component={HomeNavegador} />
-      <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador} />
-      <Drawer.Screen name="Calendario" component={CalendarioNavegador} />
-      <Drawer.Screen name="Contacto" component={ContactoNavegador} />
+      <Drawer.Screen name="Campo base" component={HomeNavegador}
+        options={{
+          drawerIcon: ({ tintColor }) => (
+            <Icon
+              name='home'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }}
+      />
+      <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador}
+        options={{
+          drawerIcon: ({ tintColor }) => (
+            <Icon
+              name='info-circle'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }}
+      />
+      <Drawer.Screen name="Calendario" component={CalendarioNavegador}
+        options={{
+          drawerIcon: ({ tintColor }) => (
+            <Icon
+              name='calendar'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }}
+      />
+      <Drawer.Screen name="Contacto" component={ContactoNavegador}
+        options={{
+          drawerIcon: ({ tintColor }) => (
+            <Icon
+              name='address-card'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }}
+      />
     </Drawer.Navigator>
+  );
+}
+
+function CustomDrawerContent(props) {
+  return (
+    <DrawerContentScrollView {...props}>
+      <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
+        <View style={styles.drawerHeader}>
+          <View style={{ flex: 1 }}>
+            <Image source={require('./imagenes/logo.png')} style={styles.drawerImage} />
+          </View>
+          <View style={{ flex: 2 }}>
+            <Text style={styles.drawerHeaderText}> Gaztaroa</Text>
+          </View>
+        </View>
+        <DrawerItemList {...props} />
+      </SafeAreaView>
+    </DrawerContentScrollView>
   );
 }
 
@@ -141,5 +200,29 @@ class Campobase extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  drawerHeader: {
+    backgroundColor: '#015afc',
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    flexDirection: 'row'
+  },
+  drawerHeaderText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold'
+  },
+  drawerImage: {
+    margin: 10,
+    width: 80,
+    height: 60
+  }
+});
 
 export default Campobase;

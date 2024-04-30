@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView } from 'react-native';
-import { Card, Icon } from 'react-native-elements';
+import { Card, Icon } from 'react-native-elements'; // Importamos Icon de react-native-elements
 import { EXCURSIONES } from '../comun/excursiones';
 import { COMENTARIOS } from '../comun/comentarios';
+
+import { baseUrl } from '../comun/comun';
 
 function RenderComentario(props) {
   const comentarios = props.comentarios;
@@ -11,9 +13,14 @@ function RenderComentario(props) {
     <Card>
       <Card.Title>Comentarios</Card.Title>
       <Card.Divider />
-      <Text>{comentarios.comentario}</Text>
-      <Text>{comentarios.valoracion} Stars</Text>
-      <Text>-- {comentarios.autor}, {comentarios.dia}</Text>
+      {comentarios.map((comentario, index) => (
+        <View key={index}>
+          <Text>{comentario.comentario}</Text>
+          <Text>{comentario.valoracion} Stars</Text>
+          <Text>-- {comentario.autor}, {comentario.dia}</Text>
+          <Text></Text>
+        </View>
+      ))}
     </Card>
   );
 }
@@ -36,8 +43,6 @@ class DetalleExcursion extends Component {
 
   render() {
     const { excursionId } = this.props.route.params;
-    const comentarioExcursion = this.state.comentarios.find((comentario) => comentario.excursionId === excursionId);
-
     return (
       <ScrollView>
         <RenderExcursion
@@ -46,7 +51,7 @@ class DetalleExcursion extends Component {
           onPress={() => this.marcarFavorito(excursionId)}
         />
         <RenderComentario
-          comentarios={comentarioExcursion} // Pasar solo el comentario de la excursión actual
+          comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)}
         />
       </ScrollView>
     );
@@ -59,8 +64,10 @@ function RenderExcursion(props) {
   if (excursion != null) {
     return (
       <Card>
-        <Card.Image source={require('./imagenes/40Años.png')}>
-          <Text style={{ color: 'chocolate', fontSize: 30, textAlign: 'center', marginTop: 20 }}>{excursion.nombre}</Text>
+        <Card.Image source={{ uri: baseUrl + excursion.imagen }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white', fontSize: 30, textAlign: 'center' }}>{excursion.nombre}</Text>
+          </View>
         </Card.Image>
         <Text style={{ margin: 20 }}>
           {excursion.descripcion}

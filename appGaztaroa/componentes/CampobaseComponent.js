@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Platform, StyleSheet, Image, Text } from 'react-native';
+import { View, Platform, StyleSheet, Image, Text } from 'react-native';
 import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
@@ -11,6 +11,8 @@ import Contacto from './ContactoComponent';
 import { Icon } from '@rneui/themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { colorGaztaroaClaro,  colorGaztaroaOscuro} from '../comun/comun';
+
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -21,7 +23,7 @@ function HomeNavegador() {
       screenOptions={{
         headerMode: 'screen',
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -43,7 +45,7 @@ function CalendarioNavegador() {
       headerMode="float"
       screenOptions={{
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -72,7 +74,7 @@ function QuienesSomosNavegador() {
       headerMode="float"
       screenOptions={{
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -94,7 +96,7 @@ function ContactoNavegador() {
       headerMode="float"
       screenOptions={{
         headerTintColor: '#fff',
-        headerStyle: { backgroundColor: '#015afc' },
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
       }}
     >
@@ -117,7 +119,7 @@ function DrawerNavegador() {
       screenOptions={{
         headerShown: false,
         drawerStyle: {
-          backgroundColor: '#c2d3da',
+          backgroundColor: colorGaztaroaClaro,
         },
       }}
     >
@@ -206,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   drawerHeader: {
-    backgroundColor: '#015afc',
+    backgroundColor: colorGaztaroaOscuro,
     height: 100,
     alignItems: 'center',
     justifyContent: 'center',

@@ -5,13 +5,15 @@ import { EXCURSIONES } from '../comun/excursiones';
 import { CABECERAS } from '../comun/cabeceras';
 import { ACTIVIDADES } from '../comun/actividades';
 
+import { baseUrl } from '../comun/comun';
+
 function RenderItem(props) {
     const item = props.item;
         
     if (item != null) {
         return(
             <Card>
-                <Card.Image source={require('./imagenes/40Años.png')}>
+                <Card.Image source={{ uri: baseUrl + item.imagen }}>
                     <Text style={{color: 'chocolate', fontSize: 30, textAlign: 'center', marginTop: 20}}>{item.nombre}</Text>
                 </Card.Image>
                 <Card.Divider/>

@@ -3,6 +3,8 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Card, ListItem, Text, Avatar } from '@rneui/themed';
 import { ACTIVIDADES } from '../comun/actividades';
 
+import { baseUrl } from '../comun/comun';
+
 const Historia = () => {
   return (
     <Card>
@@ -31,7 +33,7 @@ const QuienesSomos = () => {
         <Card.Divider />
         {ACTIVIDADES.map((actividad, index) => (
           <ListItem key={index} bottomDivider>
-            <Avatar source={require('./imagenes/40Años.png')} />
+            <Avatar source={{ uri: baseUrl + actividad.imagen }} />
             <ListItem.Content>
               <ListItem.Title>{actividad.nombre}</ListItem.Title>
               <ListItem.Subtitle>{actividad.descripcion}</ListItem.Subtitle>

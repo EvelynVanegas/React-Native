@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 
 import { baseUrl } from '../comun/comun';
 
+import IndicadorActividad from '../componentes/IndicadorActividadComponent';
+
 function RenderItem(props) {
     const item = props.item;
 
@@ -21,18 +23,18 @@ function RenderItem(props) {
                 </Text>
             </Card>
         );
-    }
-    else {
+    } else {
         return (<View></View>);
     }
 }
 
 class Home extends Component {
     render() {
-        const { cabeceras, excursiones, actividades } = this.props;
+        const { cabeceras, excursiones, actividades, isLoading } = this.props;
 
         return (
             <ScrollView>
+                {isLoading ? <IndicadorActividad /> : null}
                 <RenderItem item={cabeceras.filter((cabecera) => cabecera.destacado)[0]} />
                 <RenderItem item={excursiones.filter((excursion) => excursion.destacado)[0]} />
                 <RenderItem item={actividades.filter((actividad) => actividad.destacado)[0]} />
@@ -45,7 +47,8 @@ const mapStateToProps = state => {
     return {
         excursiones: state.excursiones.excursiones,
         cabeceras: state.cabeceras.cabeceras,
-        actividades: state.actividades.actividades
+        actividades: state.actividades.actividades,
+        isLoading: state.excursiones.isLoading
     };
 };
 

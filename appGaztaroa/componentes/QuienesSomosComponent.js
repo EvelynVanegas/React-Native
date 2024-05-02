@@ -1,34 +1,36 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { Card, ListItem, Text, Avatar } from '@rneui/themed';
-
 import { connect } from 'react-redux';
-
+import IndicadorActividad from '../componentes/IndicadorActividadComponent';
 import { baseUrl } from '../comun/comun';
 
 const mapStateToProps = state => {
   return {
-    actividades: state.actividades.actividades
-  }
+    actividades: state.actividades.actividades,
+    isLoading: state.actividades.isLoading
+  };
 }
 
-const QuienesSomos = ({ actividades }) => {
+const QuienesSomos = ({ actividades, isLoading }) => {
   return (
     <ScrollView>
       <Historia />
-      <Card>
-        <Card.Title>"Actividades y recursos"</Card.Title>
-        <Card.Divider />
-        {actividades.map((actividad, index) => (
-          <ListItem key={index} bottomDivider>
-            <Avatar source={{ uri: baseUrl + actividad.imagen }} />
-            <ListItem.Content>
-              <ListItem.Title>{actividad.nombre}</ListItem.Title>
-              <ListItem.Subtitle>{actividad.descripcion}</ListItem.Subtitle>
-            </ListItem.Content>
-          </ListItem>
-        ))}
-      </Card>
+      {isLoading ? <IndicadorActividad /> :
+        <Card>
+          <Card.Title>"Actividades y recursos"</Card.Title>
+          <Card.Divider />
+          {actividades.map((actividad, index) => (
+            <ListItem key={index} bottomDivider>
+              <Avatar source={{ uri: baseUrl + actividad.imagen }} />
+              <ListItem.Content>
+                <ListItem.Title>{actividad.nombre}</ListItem.Title>
+                <ListItem.Subtitle>{actividad.descripcion}</ListItem.Subtitle>
+              </ListItem.Content>
+            </ListItem>
+          ))}
+        </Card>
+      }
     </ScrollView>
   );
 };

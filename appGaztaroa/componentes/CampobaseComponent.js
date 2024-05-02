@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Platform, StyleSheet, Image, Text } from 'react-native';
 import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer, DrawerActions } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Home from './HomeComponent';
 import QuienesSomos from './QuienesSomosComponent';
@@ -45,7 +45,7 @@ function HomeNavegador({ navigation }) {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
-        headerTitleAlign: 'center', // Centra el título
+        headerTitleAlign: 'center',
         headerLeft: () => (
           <Icon
             name="menu"
@@ -76,7 +76,7 @@ function CalendarioNavegador({ navigation }) {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
-        headerTitleAlign: 'center', // Centra el título
+        headerTitleAlign: 'center',
         headerLeft: () => (
           <Icon
             name="menu"
@@ -114,7 +114,7 @@ function QuienesSomosNavegador({ navigation }) {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
-        headerTitleAlign: 'center', // Centra el título
+        headerTitleAlign: 'center',
         headerLeft: () => (
           <Icon
             name="menu"
@@ -146,7 +146,7 @@ function ContactoNavegador({ navigation }) {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
-        headerTitleAlign: 'center', // Centra el título
+        headerTitleAlign: 'center',
         headerLeft: () => (
           <Icon
             name="menu"
@@ -216,7 +216,7 @@ function DrawerNavegador() {
           )
         }}
       />
-      <Drawer.Screen name="Contactoooo" component={ContactoNavegador}
+      <Drawer.Screen name="Contacto" component={ContactoNavegador}
         options={{
           drawerIcon: ({ tintColor }) => (
             <Icon

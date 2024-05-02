@@ -1,18 +1,18 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import { ListItem, Avatar } from '@rneui/themed';
-
 import { connect } from 'react-redux';
-
+import IndicadorActividad from '../componentes/IndicadorActividadComponent';
 import { baseUrl } from '../comun/comun';
 
 const mapStateToProps = state => {
     return {
-        excursiones: state.excursiones.excursiones
-    }
-}
+        excursiones: state.excursiones.excursiones,
+        isLoading: state.excursiones.isLoading
+    };
+};
 
-const Calendario = ({ excursiones, navigation }) => {
+const Calendario = ({ excursiones, navigation, isLoading }) => {
 
     const renderCalendarioItem = ({ item, index }) => {
         return (
@@ -32,11 +32,13 @@ const Calendario = ({ excursiones, navigation }) => {
 
     return (
         <SafeAreaView>
-            <FlatList
-                data={excursiones}
-                renderItem={renderCalendarioItem}
-                keyExtractor={item => item.id.toString()}
-            />
+            {isLoading ? <IndicadorActividad /> :
+                <FlatList
+                    data={excursiones}
+                    renderItem={renderCalendarioItem}
+                    keyExtractor={item => item.id.toString()}
+                />
+            }
         </SafeAreaView>
     );
 };

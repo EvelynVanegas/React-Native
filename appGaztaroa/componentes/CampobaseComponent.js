@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Platform, StyleSheet, Image, Text } from 'react-native';
 import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Home from './HomeComponent';
 import QuienesSomos from './QuienesSomosComponent';
@@ -11,12 +12,31 @@ import Contacto from './ContactoComponent';
 import { Icon } from '@rneui/themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colorGaztaroaClaro,  colorGaztaroaOscuro} from '../comun/comun';
+import { colorGaztaroaClaro, colorGaztaroaOscuro } from '../comun/comun';
+
+import { connect } from 'react-redux';
+import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades } from '../redux/ActionCreators';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-function HomeNavegador() {
+const mapStateToProps = state => {
+  return {
+    excursiones: state.excursiones,
+    comentarios: state.comentarios,
+    cabeceras: state.cabeceras,
+    actividades: state.actividades
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  fetchExcursiones: () => dispatch(fetchExcursiones()),
+  fetchComentarios: () => dispatch(fetchComentarios()),
+  fetchCabeceras: () => dispatch(fetchCabeceras()),
+  fetchActividades: () => dispatch(fetchActividades()),
+})
+
+function HomeNavegador({ navigation }) {
   return (
     <Stack.Navigator
       initialRouteName="Home"
@@ -25,6 +45,15 @@ function HomeNavegador() {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center', // Centra el título
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
       }}
     >
       <Stack.Screen
@@ -38,7 +67,7 @@ function HomeNavegador() {
   );
 }
 
-function CalendarioNavegador() {
+function CalendarioNavegador({ navigation }) {
   return (
     <Stack.Navigator
       initialRouteName="Calendar"
@@ -47,6 +76,15 @@ function CalendarioNavegador() {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center', // Centra el título
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
       }}
     >
       <Stack.Screen
@@ -67,7 +105,7 @@ function CalendarioNavegador() {
   );
 }
 
-function QuienesSomosNavegador() {
+function QuienesSomosNavegador({ navigation }) {
   return (
     <Stack.Navigator
       initialRouteName="QuienesSomos"
@@ -76,6 +114,15 @@ function QuienesSomosNavegador() {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center', // Centra el título
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
       }}
     >
       <Stack.Screen
@@ -89,7 +136,8 @@ function QuienesSomosNavegador() {
   );
 }
 
-function ContactoNavegador() {
+
+function ContactoNavegador({ navigation }) {
   return (
     <Stack.Navigator
       initialRouteName="Contacto"
@@ -98,6 +146,15 @@ function ContactoNavegador() {
         headerTintColor: '#fff',
         headerStyle: { backgroundColor: colorGaztaroaOscuro },
         headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center', // Centra el título
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
       }}
     >
       <Stack.Screen
@@ -159,7 +216,7 @@ function DrawerNavegador() {
           )
         }}
       />
-      <Drawer.Screen name="Contacto" component={ContactoNavegador}
+      <Drawer.Screen name="Contactoooo" component={ContactoNavegador}
         options={{
           drawerIcon: ({ tintColor }) => (
             <Icon
@@ -194,6 +251,14 @@ function CustomDrawerContent(props) {
 }
 
 class Campobase extends Component {
+
+  componentDidMount() {
+    this.props.fetchExcursiones();
+    this.props.fetchComentarios();
+    this.props.fetchCabeceras();
+    this.props.fetchActividades();
+  }
+
   render() {
     return (
       <View style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 0 : Constants.statusBarHeight }}>
@@ -227,4 +292,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Campobase;
+export default connect(mapStateToProps, mapDispatchToProps)(Campobase);

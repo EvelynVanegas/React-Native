@@ -1,47 +1,50 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import { ListItem, Avatar } from '@rneui/themed';
-import { SafeAreaView, FlatList } from 'react-native';
-import { EXCURSIONES } from '../comun/excursiones';
+
+import { connect } from 'react-redux';
 
 import { baseUrl } from '../comun/comun';
 
-class Calendario extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            excursiones: EXCURSIONES
-        };
-    }
-
-    render() {
-
-        const { navigate } = this.props.navigation;
-
-        const renderCalendarioItem = ({ item, index }) => {
-            return (
-                <ListItem
-                    key={index}
-                    onPress={() => navigate('DetalleExcursion', { excursionId: item.id })}
-                    bottomDivider>
-                    <Avatar source={{ uri: baseUrl + item.imagen }} />
-                    <ListItem.Content>
-                        <ListItem.Title>{item.nombre}</ListItem.Title>
-                        <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
-                    </ListItem.Content>
-                </ListItem>
-            );
-        };
-
-        return (
-            <SafeAreaView>
-                <FlatList
-                    data={this.state.excursiones}
-                    renderItem={renderCalendarioItem}
-                    keyExtractor={item => item.id.toString()}
-                />
-            </SafeAreaView>
-        );
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones.excursiones
     }
 }
 
-export default Calendario;
+const Calendario = ({ excursiones, navigation }) => {
+
+    const renderCalendarioItem = ({ item, index }) => {
+        return (
+            <ListItem
+                key={index}
+                onPress={() => navigation.navigate('DetalleExcursion', { excursionId: item.id })}
+                bottomDivider
+            >
+                <Avatar source={{ uri: baseUrl + item.imagen }} />
+                <ListItem.Content>
+                    <ListItem.Title>{item.nombre}</ListItem.Title>
+                    <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
+                </ListItem.Content>
+            </ListItem>
+        );
+    };
+
+    return (
+        <SafeAreaView>
+            <FlatList
+                data={excursiones}
+                renderItem={renderCalendarioItem}
+                keyExtractor={item => item.id.toString()}
+            />
+        </SafeAreaView>
+    );
+};
+
+const styles = StyleSheet.create({
+    text: {
+        marginBottom: 10,
+    },
+});
+
+export default connect(mapStateToProps)(Calendario);

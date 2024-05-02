@@ -1,9 +1,37 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { Card, ListItem, Text, Avatar } from '@rneui/themed';
-import { ACTIVIDADES } from '../comun/actividades';
+
+import { connect } from 'react-redux';
 
 import { baseUrl } from '../comun/comun';
+
+const mapStateToProps = state => {
+  return {
+    actividades: state.actividades.actividades
+  }
+}
+
+const QuienesSomos = ({ actividades }) => {
+  return (
+    <ScrollView>
+      <Historia />
+      <Card>
+        <Card.Title>"Actividades y recursos"</Card.Title>
+        <Card.Divider />
+        {actividades.map((actividad, index) => (
+          <ListItem key={index} bottomDivider>
+            <Avatar source={{ uri: baseUrl + actividad.imagen }} />
+            <ListItem.Content>
+              <ListItem.Title>{actividad.nombre}</ListItem.Title>
+              <ListItem.Subtitle>{actividad.descripcion}</ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+        ))}
+      </Card>
+    </ScrollView>
+  );
+};
 
 const Historia = () => {
   return (
@@ -19,29 +47,7 @@ const Historia = () => {
       <Text style={styles.text}>
         Gracias!
       </Text>
-
     </Card>
-  );
-};
-
-const QuienesSomos = () => {
-  return (
-    <ScrollView>
-      <Historia />
-      <Card>
-        <Card.Title>"Actividades y recursos"</Card.Title>
-        <Card.Divider />
-        {ACTIVIDADES.map((actividad, index) => (
-          <ListItem key={index} bottomDivider>
-            <Avatar source={{ uri: baseUrl + actividad.imagen }} />
-            <ListItem.Content>
-              <ListItem.Title>{actividad.nombre}</ListItem.Title>
-              <ListItem.Subtitle>{actividad.descripcion}</ListItem.Subtitle>
-            </ListItem.Content>
-          </ListItem>
-        ))}
-      </Card>
-    </ScrollView>
   );
 };
 
@@ -51,4 +57,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuienesSomos;
+export default connect(mapStateToProps)(QuienesSomos);

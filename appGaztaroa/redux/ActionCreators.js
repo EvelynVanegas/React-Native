@@ -26,6 +26,17 @@ export const comentariosFailed = (errmess) => ({
     payload: errmess
 });
 
+export const postComentario = (excursionId, valoracion, autor, comentario, dia) => (dispatch) => {
+    setTimeout(() => {
+        dispatch(addComentario(excursionId, valoracion, autor, comentario, dia));
+    }, 2000);
+};
+
+export const addComentario = (excursionId, valoracion, autor, comentario, dia) => ({
+    type: ActionTypes.ADD_COMENTARIO,
+    payload: { excursionId, valoracion, autor, comentario, dia }
+});
+
 export const addComentarios = (comentarios) => ({
     type: ActionTypes.ADD_COMENTARIOS,
     payload: comentarios

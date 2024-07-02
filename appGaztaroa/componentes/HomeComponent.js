@@ -1,55 +1,71 @@
-import React, { Component } from 'react';
-import { Text, ScrollView, View } from 'react-native';
+// REACT
+import React from 'react';
+import { Text, ScrollView } from 'react-native';
 import { Card } from '@rneui/themed';
 
+// REDUX
 import { connect } from 'react-redux';
 
-import { baseUrl } from '../comun/comun';
+// FIREBASE
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
+// Componentes
 import IndicadorActividad from '../componentes/IndicadorActividadComponent';
 
 function RenderItem(props) {
-    const item = props.item;
+    const { item } = props;
+    const [imageUrl, setImageUrl] = React.useState(null);
 
-    if (item != null) {
-        return (
-            <Card>
-                <Card.Image source={{ uri: baseUrl + item.imagen }}>
+    React.useEffect(() => {
+        const fetchImageUrl = async () => {
+            try {
+                const storage = getStorage();
+                const imageRef = ref(storage, `public/${item.imagen}`);
+                const url = await getDownloadURL(imageRef);
+                setImageUrl(url);
+            } catch (error) {
+                console.error('Error fetching image URL:', error);
+            }
+        };
+
+        if (item && item.imagen) {
+            fetchImageUrl();
+        }
+    }, [item]);
+
+    if (!item) {
+        return null;
+    }
+
+    return (
+        <Card>
+            {imageUrl ? (
+                <Card.Image source={{ uri: imageUrl }}>
                     <Text style={{ color: 'chocolate', fontSize: 30, textAlign: 'center', marginTop: 20 }}>{item.nombre}</Text>
                 </Card.Image>
-                <Card.Divider />
-                <Text style={{ margin: 20 }}>
-                    {item.descripcion}
-                </Text>
-            </Card>
-        );
-    } else {
-        return (<View></View>);
-    }
+            ) : (
+                <IndicadorActividad />
+            )}
+            <Card.Divider />
+            <Text style={{ margin: 20 }}>{item.descripcion}</Text>
+        </Card>
+    );
 }
 
-class Home extends Component {
-    render() {
-        const { cabeceras, excursiones, actividades, isLoading } = this.props;
+const Home = ({ cabeceras, excursiones, actividades, isLoading }) => (
+    <ScrollView>
+        {isLoading && <IndicadorActividad />}
+        <RenderItem item={cabeceras.find((cabecera) => cabecera.destacado)} />
+        <RenderItem item={excursiones.find((excursion) => excursion.destacado)} />
+        <RenderItem item={actividades.find((actividad) => actividad.destacado)} />
+    </ScrollView>
+);
 
-        return (
-            <ScrollView>
-                {isLoading ? <IndicadorActividad /> : null}
-                <RenderItem item={cabeceras.filter((cabecera) => cabecera.destacado)[0]} />
-                <RenderItem item={excursiones.filter((excursion) => excursion.destacado)[0]} />
-                <RenderItem item={actividades.filter((actividad) => actividad.destacado)[0]} />
-            </ScrollView>
-        );
-    }
-}
-
-const mapStateToProps = state => {
-    return {
-        excursiones: state.excursiones.excursiones,
-        cabeceras: state.cabeceras.cabeceras,
-        actividades: state.actividades.actividades,
-        isLoading: state.excursiones.isLoading
-    };
-};
+const mapStateToProps = state => ({
+    excursiones: state.excursiones.excursiones,
+    cabeceras: state.cabeceras.cabeceras,
+    actividades: state.actividades.actividades,
+    isLoading: state.excursiones.isLoading,
+});
 
 export default connect(mapStateToProps)(Home);

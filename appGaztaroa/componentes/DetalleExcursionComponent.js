@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { Modal, View, ScrollView } from 'react-native';
-import { Text, Input, Rating, Button, Card, Icon } from 'react-native-elements';
+// EXPO
 import { FontAwesome } from '@expo/vector-icons';
+
+// REACT
+import React, { useState, useEffect } from 'react';
+import { Modal, View, ScrollView, Text } from 'react-native';
+import { Input, Rating, Button, Card, Icon } from 'react-native-elements';
+
+// REDUX
 import { connect } from 'react-redux';
 import { postComentario, postFavorito } from '../redux/ActionCreators';
-import { baseUrl } from '../comun/comun';
+
+// FIREBASE
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+
+// ESTILOS
 import { extendedStyles } from './styles';
 
 const mapStateToProps = state => ({
@@ -19,20 +28,49 @@ const mapDispatchToProps = dispatch => ({
 });
 
 function RenderExcursion({ excursion, onPress, favorita, toggleModal }) {
+  const [loadingImage, setLoadingImage] = useState(true);
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    setLoadingImage(true);
+    if (excursion && excursion.imagen) {
+      const storage = getStorage();
+      const imageRef = ref(storage, `public/${excursion.imagen}`);
+      getDownloadURL(imageRef)
+        .then(url => {
+          setImageUrl(url);
+        })
+        .catch(error => {
+          console.error('Error fetching image URL:', error);
+        })
+        .finally(() => {
+          setLoadingImage(false);
+        });
+    }
+  }, [excursion]);
+
   if (!excursion) {
     return null;
   }
 
   return (
     <Card>
-      <Card.Image source={{ uri: baseUrl + excursion.imagen }}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: 'white', fontSize: 30, textAlign: 'center' }}>{excursion.nombre}</Text>
+      {loadingImage ? (
+        <View style={{ height: 200, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 16 }}>Cargando imagen...</Text>
         </View>
-      </Card.Image>
-      <Text style={{ margin: 20 }}>
-        {excursion.descripcion}
-      </Text>
+      ) : imageUrl ? (
+        <Card.Image source={{ uri: imageUrl }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'white', fontSize: 30, textAlign: 'center' }}>{excursion.nombre}</Text>
+          </View>
+        </Card.Image>
+      ) : (
+        <View style={{ height: 200, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 16 }}>Imagen no disponible</Text>
+        </View>
+      )}
+      <Text style={{ margin: 20 }}>{excursion.descripcion}</Text>
       <View style={extendedStyles.iconContainer}>
         <Icon
           raised

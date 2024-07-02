@@ -18,6 +18,7 @@ import QuienesSomos from './QuienesSomosComponent';
 import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
 import Contacto from './ContactoComponent';
+import Login from './LoginComponent';
 
 // ICON
 import { Icon } from '@rneui/themed';
@@ -166,10 +167,41 @@ function ContactoNavegador({ navigation }) {
       }}
     >
       <Stack.Screen
-        name="Contacto"
+        name="Contacto_2"
         component={Contacto}
         options={{
           title: 'Contacto',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function LoginNavegador({ navigation }) {
+  return (
+    <Stack.Navigator
+      initialRouteName="Iniciar sesión"
+      headerMode="float"
+      screenOptions={{
+        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
+        headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center',
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
+      }}
+    >
+      <Stack.Screen
+        name="Login_2"
+        component={Login}
+        options={{
+          title: 'Iniciar sesión',
         }}
       />
     </Stack.Navigator>
@@ -229,6 +261,18 @@ function DrawerNavegador() {
           drawerIcon: ({ tintColor }) => (
             <Icon
               name='address-card'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }}
+      />
+      <Drawer.Screen name="Iniciar sesión" component={LoginNavegador}
+        options={{
+          drawerIcon: ({ tintColor }) => (
+            <Icon
+              name='user'
               type='font-awesome'
               size={24}
               color={tintColor}

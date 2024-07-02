@@ -148,7 +148,7 @@ function QuienesSomosNavegador({ navigation }) {
 function ContactoNavegador({ navigation }) {
   return (
     <Stack.Navigator
-      initialRouteName="Contacto_0"
+      initialRouteName="Contacto"
       headerMode="float"
       screenOptions={{
         headerTintColor: '#fff',
@@ -166,7 +166,7 @@ function ContactoNavegador({ navigation }) {
       }}
     >
       <Stack.Screen
-        name="Contacto_1"
+        name="Contacto"
         component={Contacto}
         options={{
           title: 'Contacto',

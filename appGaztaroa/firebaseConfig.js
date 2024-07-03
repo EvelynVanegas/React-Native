@@ -1,26 +1,30 @@
 import { initializeApp } from 'firebase/app';
-
-// Optionally import the services that you want to use
-import { initializeApp } from "firebase/auth";
-import { getDatabase  } from "firebase/database";
+import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {...} from "firebase/firestore";
 // import {...} from "firebase/functions";
-import { getStorage  } from "firebase/storage";
 
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyCi9NARiBce9uqWhTSA250pvBeBp-IxGjo",
-    authDomain: "proyecto-final---react-native.firebaseapp.com",
-    databaseURL: "https://proyecto-final---react-native-default-rtdb.firebaseio.com",
-    projectId: "proyecto-final---react-native",
-    storageBucket: "proyecto-final---react-native.appspot.com",
-    messagingSenderId: "377510723246",
-    appId: "1:377510723246:web:c18a4f1c1bc8ac6468373f",
-    measurementId: "G-RT41Q84PG7"
-};
+    apiKey: "AIzaSyArM7FijgkkOcKCm77w30sfBet1a1UpjfY",
+    authDomain: "react-native-f84ac.firebaseapp.com",
+    databaseURL: "https://react-native-f84ac-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "react-native-f84ac",
+    storageBucket: "react-native-f84ac.appspot.com",
+    messagingSenderId: "156819458424",
+    appId: "1:156819458424:web:76429bccf438c4ec7aa08d",
+    measurementId: "G-PL7QGVBRHT"
+  };
 
 const app = initializeApp(firebaseConfig);
+
+const auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage)
+});
+
 const database = getDatabase(app);
 const storage = getStorage(app);
 
-export { database, storage };
+export { app, auth, database, storage };

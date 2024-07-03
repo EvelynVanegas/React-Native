@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@rneui/themed';
 import { extendedStyles } from './styles';
+import { auth } from '../firebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const LoginComponent = ({ navigation }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const auth = getAuth();
 
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
@@ -28,7 +27,6 @@ const LoginComponent = ({ navigation }) => {
     const handleRegister = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
-                // Registered
                 const user = userCredential.user;
                 Alert.alert('Usuario registrado con éxito', `Bienvenido, ${user.email}`);
                 navigation.navigate('Home');

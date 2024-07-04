@@ -44,6 +44,14 @@ function ActividadesFavoritasC({ excursiones, favoritos, fetchFavoritos }) {
     }, [excursiones, favoritos]);
 
     const renderExcursionesFavoritas = () => {
+        if (excursionesFavoritas.length === 0) {
+            return (
+                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                    <Text>No hay actividades favoritas</Text>
+                </View>
+            );
+        }
+
         return excursionesFavoritas.map(excursion => (
             <RenderExcursion key={excursion.id} excursion={excursion} />
         ));

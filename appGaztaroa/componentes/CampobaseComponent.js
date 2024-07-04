@@ -19,7 +19,7 @@ import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
 import Contacto from './ContactoComponent';
 import Login from './LoginComponent';
-import ActividadesFavoritasC from './LoginComponent';
+import ActividadesFavoritasC from './ActividadesFavoritasC';
 
 // ICON
 import { Icon } from '@rneui/themed';

@@ -4,6 +4,7 @@ import { comentarios } from './comentarios';
 import { cabeceras } from './cabeceras';
 import { actividades } from './actividades';
 import { favoritos } from './favoritos';
+import { loggedIn } from './loggedIn';
 
 export const ConfigureStore = () => {
     const store = configureStore({
@@ -13,6 +14,7 @@ export const ConfigureStore = () => {
             cabeceras: cabeceras,
             actividades: actividades,
             favoritos: favoritos,
+            loggedIn: loggedIn,
         },
     });
 

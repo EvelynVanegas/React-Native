@@ -4,8 +4,11 @@ import { Button } from '@rneui/themed';
 import { extendedStyles } from './styles';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { connect } from 'react-redux';
+import { loginUser } from '../redux/ActionCreators';
+import { loggedIn } from '../redux/loggedIn';
 
-const LoginComponent = ({ navigation }) => {
+const LoginComponent = ({ navigation, loginUser }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -15,7 +18,8 @@ const LoginComponent = ({ navigation }) => {
             .then(userCredential => {
                 const user = userCredential.user;
                 Alert.alert('Inicio de sesión correcto', `Bienvenido, ${user.email}`);
-                navigation.navigate('Home');
+                loginUser();
+                navigation.navigate('Campo base');
             })
             .catch(error => {
                 const errorCode = error.code;
@@ -29,7 +33,8 @@ const LoginComponent = ({ navigation }) => {
             .then(userCredential => {
                 const user = userCredential.user;
                 Alert.alert('Usuario registrado con éxito', `Bienvenido, ${user.email}`);
-                navigation.navigate('Home');
+                loginUser();  // Despacha la acción loginUser para actualizar el estado loggedIn
+                navigation.navigate('Campo base');
             })
             .catch(error => {
                 const errorCode = error.code;
@@ -95,4 +100,9 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginComponent;
+// Conectar el componente al store de Redux
+const mapDispatchToProps = (dispatch) => ({
+    loginUser: () => dispatch(loginUser())
+});
+
+export default connect(null, mapDispatchToProps)(LoginComponent);

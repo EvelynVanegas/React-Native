@@ -1,6 +1,16 @@
 import * as ActionTypes from './ActionTypes';
 import { getDatabase, ref, onValue, get, set, child } from 'firebase/database';
 
+// Acción para iniciar sesión
+export const loginUser = () => ({
+    type: ActionTypes.LOGIN_USER
+});
+
+// Acción para cerrar sesión
+export const logoutUser = () => ({
+    type: ActionTypes.LOGOUT_USER
+});
+
 // Comentarios desde Firebase Realtime Database
 export const fetchComentarios = () => (dispatch) => {
     const database = getDatabase();

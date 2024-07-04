@@ -2,15 +2,15 @@ import Constants from 'expo-constants';
 
 // REACT
 import React, { Component } from 'react';
-import { View, Platform, StyleSheet, Image, Text } from 'react-native';
+import { View, Platform, StyleSheet, Image, Text, Button, Alert } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { DrawerActions } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // REDUX
-import { connect } from 'react-redux';
-import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades } from '../redux/ActionCreators';
+import { connect, useDispatch } from 'react-redux';
+import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades, logoutUser } from '../redux/ActionCreators';
 
 // COMPONENTES
 import Home from './HomeComponent';
@@ -19,6 +19,7 @@ import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
 import Contacto from './ContactoComponent';
 import Login from './LoginComponent';
+import ActividadesFavoritasC from './LoginComponent';
 
 // ICON
 import { Icon } from '@rneui/themed';
@@ -34,7 +35,8 @@ const mapStateToProps = state => {
     excursiones: state.excursiones,
     comentarios: state.comentarios,
     cabeceras: state.cabeceras,
-    actividades: state.actividades
+    actividades: state.actividades,
+    loggedIn: state.loggedIn,
   }
 }
 
@@ -43,6 +45,7 @@ const mapDispatchToProps = dispatch => ({
   fetchComentarios: () => dispatch(fetchComentarios()),
   fetchCabeceras: () => dispatch(fetchCabeceras()),
   fetchActividades: () => dispatch(fetchActividades()),
+  logoutUser: () => dispatch(logoutUser()),
 })
 
 function HomeNavegador({ navigation }) {
@@ -208,11 +211,42 @@ function LoginNavegador({ navigation }) {
   );
 }
 
-function DrawerNavegador() {
+function ActividadesFavoritas({ navigation }) {
+  return (
+    <Stack.Navigator
+      initialRouteName="Actividades favoritas"
+      headerMode="float"
+      screenOptions={{
+        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: colorGaztaroaOscuro },
+        headerTitleStyle: { color: '#fff' },
+        headerTitleAlign: 'center',
+        headerLeft: () => (
+          <Icon
+            name="menu"
+            size={28}
+            color='white'
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          />
+        ),
+      }}
+    >
+      <Stack.Screen
+        name="ActividadesFavortias_2"
+        component={ActividadesFavoritasC}
+        options={{
+          title: 'Actividades Favoritas',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function DrawerNavegador({ loggedIn }) {
   return (
     <Drawer.Navigator
-      initialRouteName="Home"
-      drawerContent={props => <CustomDrawerContent {...props} />}
+      initialRouteName={ "Campo base" }
+      drawerContent={props => <CustomDrawerContent {...props} loggedIn={loggedIn} />}
       screenOptions={{
         headerShown: false,
         drawerStyle: {
@@ -220,71 +254,105 @@ function DrawerNavegador() {
         },
       }}
     >
-      <Drawer.Screen name="Campo base" component={HomeNavegador}
+      <Drawer.Screen
+        name="Campo base"
+        component={HomeNavegador}
         options={{
-          drawerIcon: ({ tintColor }) => (
+          drawerIcon: ({ color }) => (
             <Icon
               name='home'
               type='font-awesome'
               size={24}
-              color={tintColor}
+              color={color}
             />
           )
         }}
       />
-      <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador}
+      <Drawer.Screen
+        name="Quiénes somos"
+        component={QuienesSomosNavegador}
         options={{
-          drawerIcon: ({ tintColor }) => (
+          drawerIcon: ({ color }) => (
             <Icon
               name='info-circle'
               type='font-awesome'
               size={24}
-              color={tintColor}
+              color={color}
             />
           )
         }}
       />
-      <Drawer.Screen name="Calendario" component={CalendarioNavegador}
+      <Drawer.Screen
+        name="Calendario"
+        component={CalendarioNavegador}
         options={{
-          drawerIcon: ({ tintColor }) => (
+          drawerIcon: ({ color }) => (
             <Icon
               name='calendar'
               type='font-awesome'
               size={24}
-              color={tintColor}
+              color={color}
             />
           )
         }}
       />
-      <Drawer.Screen name="Contacto" component={ContactoNavegador}
+      <Drawer.Screen
+        name="Contacto"
+        component={ContactoNavegador}
         options={{
-          drawerIcon: ({ tintColor }) => (
+          drawerIcon: ({ color }) => (
             <Icon
               name='address-card'
               type='font-awesome'
               size={24}
-              color={tintColor}
+              color={color}
             />
           )
         }}
       />
-      <Drawer.Screen name="Iniciar sesión" component={LoginNavegador}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Icon
-              name='user'
-              type='font-awesome'
-              size={24}
-              color={tintColor}
-            />
-          )
-        }}
-      />
+      {!loggedIn ? (
+        <Drawer.Screen
+          name="Iniciar sesión"
+          component={LoginNavegador}
+          options={{
+            drawerIcon: ({ color }) => (
+              <Icon
+                name='user'
+                type='font-awesome'
+                size={24}
+                color={color}
+              />
+            )
+          }}
+        />
+      ) : (
+        <Drawer.Screen
+          name="Actividades Favoritas"
+          component={ActividadesFavoritas}
+          options={{
+            drawerIcon: ({ color }) => (
+              <Icon
+                name='tree'
+                type='font-awesome'
+                size={24}
+                color={color}
+              />
+            )
+          }}
+        />
+      )}
     </Drawer.Navigator>
   );
 }
 
 function CustomDrawerContent(props) {
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    Alert.alert('Se ha cerrado sesión correctamente', 'Hasta pronto');
+  }
+
   return (
     <DrawerContentScrollView {...props}>
       <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
@@ -297,6 +365,14 @@ function CustomDrawerContent(props) {
           </View>
         </View>
         <DrawerItemList {...props} />
+        {props.loggedIn && (
+          <Button
+            title="Cerrar sesión"
+            onPress={handleLogout}
+            buttonStyle={styles.buttonPrimary}
+            titleStyle={styles.buttonText}
+          />
+        )}
       </SafeAreaView>
     </DrawerContentScrollView>
   );
@@ -312,9 +388,10 @@ class Campobase extends Component {
   }
 
   render() {
+    const { loggedIn } = this.props;
     return (
       <View style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 0 : Constants.statusBarHeight }}>
-        <DrawerNavegador />
+        <DrawerNavegador loggedIn={loggedIn} />
       </View>
     );
   }
@@ -341,6 +418,15 @@ const styles = StyleSheet.create({
     margin: 10,
     width: 80,
     height: 60
+  },
+  buttonPrimary: {
+    backgroundColor: colorGaztaroaOscuro,
+    borderRadius: 5,
+    marginTop: 10,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    color: 'white',
   }
 });
 

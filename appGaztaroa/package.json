@@ -19,11 +19,12 @@
     "@rneui/base": "^4.0.0-rc.7",
     "@rneui/themed": "^4.0.0-rc.8",
     "expo": "^51.0.14",
+    "expo-image-picker": "~15.0.7",
     "expo-status-bar": "~1.12.1",
     "firebase": "^10.12.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.74.2",
+    "react-native": "0.74.3",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-reanimated": "~3.10.1",
@@ -36,7 +37,9 @@
     "redux-thunk": "^3.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@expo/cli": "^0.18.22",
+    "typescript": "~5.3.3"
   },
   "private": true
 }

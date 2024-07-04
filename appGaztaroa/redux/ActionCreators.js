@@ -1,21 +1,23 @@
 import * as ActionTypes from './ActionTypes';
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, onValue, get, set, child } from 'firebase/database';
 
 // Comentarios desde Firebase Realtime Database
 export const fetchComentarios = () => (dispatch) => {
     const database = getDatabase();
     const comentariosRef = ref(database, 'comentarios');
 
-    return get(comentariosRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                return snapshot.val();
-            } else {
-                throw new Error('No data available');
-            }
-        })
-        .then(comentarios => dispatch(addComentarios(comentarios)))
-        .catch(error => dispatch(comentariosFailed(error.message)));
+    // Suscribirse a cambios en tiempo real
+    onValue(comentariosRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const comentarios = snapshot.val();
+            const comentariosList = Object.keys(comentarios).map(key => comentarios[key]);
+            dispatch(addComentarios(comentariosList));
+        } else {
+            dispatch(comentariosFailed('No data available'));
+        }
+    }, (error) => {
+        dispatch(comentariosFailed(error.message));
+    });
 };
 
 export const comentariosFailed = (errmess) => ({
@@ -138,3 +140,42 @@ export const addFavorito = (excursionId) => ({
     type: ActionTypes.ADD_FAVORITO,
     payload: excursionId
 });
+
+// Obtener el último ID y sumar 1
+const getNextComentarioId = async () => {
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, 'comentarios'));
+    if (snapshot.exists()) {
+        const comentarios = snapshot.val();
+        const ids = Object.keys(comentarios).map(key => comentarios[key].id);
+        const maxId = Math.max(...ids);
+        return maxId + 1;
+    } else {
+        return 0; // Si no hay comentarios, el primer ID será 0
+    }
+};
+
+// Agregar comentario a Firebase Realtime Database
+export const postComentario = (excursionId, valoracion, autor, comentario, dia, imageUrl) => async (dispatch) => {
+    const database = getDatabase();
+    const nextId = await getNextComentarioId();
+    const comentariosRef = ref(database, `comentarios/${nextId}`); // Usar el nextId como clave
+
+    try {
+        await set(comentariosRef, {
+            id: nextId, // Utiliza el id secuencial
+            autor: autor,
+            comentario: comentario,
+            dia: dia,
+            excursionId: excursionId,
+            valoracion: valoracion,
+            imageUrl: imageUrl
+        });
+
+        console.log('Comentario agregado correctamente');
+        // Puedes despachar una acción aquí si es necesario
+    } catch (error) {
+        console.error('Error al agregar comentario:', error);
+        // Manejo de errores, por ejemplo despachar una acción de error
+    }
+};

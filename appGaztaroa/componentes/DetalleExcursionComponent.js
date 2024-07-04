@@ -6,10 +6,11 @@ import * as ImagePicker from 'expo-image-picker'; // Importar desde expo-image-p
 import React, { useState, useEffect } from 'react';
 import { Modal, View, ScrollView, Text, Alert } from 'react-native';
 import { Input, Rating, Button, Card, Icon, Image } from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // REDUX
 import { connect } from 'react-redux';
-import { postComentario, postFavorito, fetchComentarios } from '../redux/ActionCreators';
+import { postComentario, fetchComentarios, addFavorito, deleteFavorito, fetchFavoritos, setFavoritos } from '../redux/ActionCreators';
 
 // FIREBASE
 import { getStorage, ref, getDownloadURL, uploadBytes } from 'firebase/storage';
@@ -25,17 +26,30 @@ const getCurrentISODate = () => {
 const mapStateToProps = state => ({
   excursiones: state.excursiones.excursiones,
   comentarios: state.comentarios.comentarios,
-  favoritos: state.favoritos && state.favoritos.favoritos ? state.favoritos.favoritos : []
+  favoritos: state.favoritos.favoritos,
 });
 
 const mapDispatchToProps = dispatch => ({
   postComentario: (excursionId, valoracion, autor, comentario, dia, imageUrl) =>
     dispatch(postComentario(excursionId, valoracion, autor, comentario, dia, imageUrl)),
-  postFavorito: (excursionId) => dispatch(postFavorito(excursionId)),
-  fetchComentarios: () => dispatch(fetchComentarios())
+  fetchComentarios: () => dispatch(fetchComentarios()),
+  addFavorito: (emailPrefix, excursionId) => dispatch(addFavorito(emailPrefix, excursionId)),
+  deleteFavorito: (emailPrefix, excursionId) => dispatch(deleteFavorito(emailPrefix, excursionId)),
+  fetchFavoritos: (emailPrefix) => dispatch(fetchFavoritos(emailPrefix)),
+  setFavoritos: (favoritos) => dispatch(setFavoritos(favoritos)),
 });
 
-function RenderExcursion({ excursion, onPress, favorita, toggleModal }) {
+const getEmailPrefix = async () => {
+  try {
+    const emailPrefix = await AsyncStorage.getItem('emailPrefix');
+    return emailPrefix;
+  } catch (error) {
+    console.error('Error retrieving emailPrefix:', error);
+    return null;
+  }
+};
+
+function RenderExcursion({ excursion, onPress, favorita, toggleModal, emailPrefix }) {
   const [loadingImage, setLoadingImage] = useState(true);
   const [imageUrl, setImageUrl] = useState(null);
 
@@ -81,6 +95,7 @@ function RenderExcursion({ excursion, onPress, favorita, toggleModal }) {
       <Text style={{ margin: 20 }}>{excursion.descripcion}</Text>
       <View style={extendedStyles.iconContainer}>
         <Icon
+          disabled={!emailPrefix.trim().length > 0}
           raised
           reverse
           name={favorita ? 'heart' : 'heart-o'}
@@ -120,15 +135,32 @@ function RenderComentario({ comentarios = [] }) {
   );
 }
 
-function DetalleExcursion({ route, excursiones, comentarios, favoritos, postComentario, postFavorito, fetchComentarios }) {
+function DetalleExcursion({ route, excursiones, comentarios, favoritos, postComentario, fetchComentarios, addFavorito, deleteFavorito, fetchFavoritos, setFavoritos }) {
   const [valoracion, setValoracion] = useState(5);
   const [autor, setAutor] = useState('');
   const [comentario, setComentario] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // Estado para almacenar la imagen seleccionada
-
+  const [emailPrefix, setEmailPrefix] = useState('');
 
   useEffect(() => {
+    const getEmailPrefix = async () => {
+      try {
+        const prefix = await AsyncStorage.getItem('emailPrefix');
+        if (prefix) {
+          setEmailPrefix(prefix);
+          fetchFavoritos(prefix); // Obtener los favoritos al obtener el emailPrefix
+        }
+      } catch (error) {
+        console.error('Error retrieving emailPrefix:', error);
+      }
+    };
+
+    getEmailPrefix();
+  }, []);
+
+  useEffect(() => {
+    // Fetch de comentarios al montar o cuando cambie fetchComentarios
     fetchComentarios();
   }, [fetchComentarios]);
 
@@ -178,7 +210,6 @@ function DetalleExcursion({ route, excursiones, comentarios, favoritos, postCome
     resetForm();
   };
 
-
   const { excursionId } = route.params;
   const excursion = excursiones[excursionId];
 
@@ -198,23 +229,37 @@ function DetalleExcursion({ route, excursiones, comentarios, favoritos, postCome
       quality: 1,
     });
 
-    if (!result.assets[0].canceled && result.assets[0].uri) {
+    if (!result.canceled && result.assets[0].uri) {
       setSelectedImage(result.assets[0].uri);
-      console.log('LOG URI de la imagen seleccionada:', result.assets[0].uri);
+      console.log('URI de la imagen seleccionada:', result.assets[0].uri);
     } else {
-      console.log('LOG Selección de imagen cancelada o URI inválida:', result);
+      console.log('Selección de imagen cancelada o URI inválida:', result);
     }
   };
 
+  if (!excursion) {
+    return null;
+  }
 
+  const marcarFavorito = (excursionId) => {
+    if (favoritos) {
+      const excursionIdString = excursionId.toString();
+      if (favoritos.includes(excursionIdString)) {
+        deleteFavorito(emailPrefix, excursionId);
+      } else {
+        addFavorito(emailPrefix, excursionId);
+      }
+    }
+  };
 
   return (
     <ScrollView>
       <RenderExcursion
         excursion={excursion}
-        favorita={favoritos.some(el => el === excursionId)}
-        onPress={() => marcarFavorito(excursionId)}
+        favorita={favoritos.includes(excursion.id.toString())}
+        onPress={() => marcarFavorito(excursion.id)}
         toggleModal={toggleModal}
+        emailPrefix={emailPrefix}
       />
       <RenderComentario
         comentarios={comentarios.filter((comentario) => comentario.excursionId === excursionId)}

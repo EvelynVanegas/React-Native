@@ -1,15 +1,24 @@
 import * as ActionTypes from './ActionTypes';
 import { getDatabase, ref, onValue, get, set, child } from 'firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Acción para iniciar sesión
 export const loginUser = () => ({
-    type: ActionTypes.LOGIN_USER
+    type: ActionTypes.LOGIN_USER,
 });
 
 // Acción para cerrar sesión
-export const logoutUser = () => ({
-    type: ActionTypes.LOGOUT_USER
-});
+export const logoutUser = () => {
+    return async (dispatch) => {
+        try {
+            // Limpiar AsyncStorage
+            await AsyncStorage.removeItem('emailPrefix');
+            dispatch({ type: ActionTypes.LOGOUT_USER });
+        } catch (error) {
+            console.error('Error clearing AsyncStorage:', error);
+        }
+    };
+};
 
 // Comentarios desde Firebase Realtime Database
 export const fetchComentarios = () => (dispatch) => {
@@ -39,6 +48,45 @@ export const addComentarios = (comentarios) => ({
     type: ActionTypes.ADD_COMENTARIOS,
     payload: comentarios
 });
+
+// Obtener el último ID y sumar 1
+const getNextComentarioId = async () => {
+    const dbRef = ref(getDatabase());
+    const snapshot = await get(child(dbRef, 'comentarios'));
+    if (snapshot.exists()) {
+        const comentarios = snapshot.val();
+        const ids = Object.keys(comentarios).map(key => comentarios[key].id);
+        const maxId = Math.max(...ids);
+        return maxId + 1;
+    } else {
+        return 0; // Si no hay comentarios, el primer ID será 0
+    }
+};
+
+// Agregar comentario a Firebase Realtime Database
+export const postComentario = (excursionId, valoracion, autor, comentario, dia, imageUrl) => async (dispatch) => {
+    const database = getDatabase();
+    const nextId = await getNextComentarioId();
+    const comentariosRef = ref(database, `comentarios/${nextId}`); // Usar el nextId como clave
+
+    try {
+        await set(comentariosRef, {
+            id: nextId, // Utiliza el id secuencial
+            autor: autor,
+            comentario: comentario,
+            dia: dia,
+            excursionId: excursionId,
+            valoracion: valoracion,
+            imageUrl: imageUrl
+        });
+
+        console.log('Comentario agregado correctamente');
+        // Puedes despachar una acción aquí si es necesario
+    } catch (error) {
+        console.error('Error al agregar comentario:', error);
+        // Manejo de errores, por ejemplo despachar una acción de error
+    }
+};
 
 // Excursiones desde Firebase Realtime Database
 export const fetchExcursiones = () => (dispatch) => {
@@ -139,53 +187,62 @@ export const addActividades = (actividades) => ({
     payload: actividades
 });
 
-// Función para agregar favorito (simulado con un timeout)
-export const postFavorito = (excursionId) => (dispatch) => {
-    setTimeout(() => {
-        dispatch(addFavorito(excursionId));
-    }, 2000);
-};
-
-export const addFavorito = (excursionId) => ({
-    type: ActionTypes.ADD_FAVORITO,
-    payload: excursionId
-});
-
-// Obtener el último ID y sumar 1
-const getNextComentarioId = async () => {
-    const dbRef = ref(getDatabase());
-    const snapshot = await get(child(dbRef, 'comentarios'));
-    if (snapshot.exists()) {
-        const comentarios = snapshot.val();
-        const ids = Object.keys(comentarios).map(key => comentarios[key].id);
-        const maxId = Math.max(...ids);
-        return maxId + 1;
-    } else {
-        return 0; // Si no hay comentarios, el primer ID será 0
-    }
-};
-
-// Agregar comentario a Firebase Realtime Database
-export const postComentario = (excursionId, valoracion, autor, comentario, dia, imageUrl) => async (dispatch) => {
-    const database = getDatabase();
-    const nextId = await getNextComentarioId();
-    const comentariosRef = ref(database, `comentarios/${nextId}`); // Usar el nextId como clave
-
+export const fetchFavoritos = (emailPrefix) => async (dispatch) => {
     try {
-        await set(comentariosRef, {
-            id: nextId, // Utiliza el id secuencial
-            autor: autor,
-            comentario: comentario,
-            dia: dia,
-            excursionId: excursionId,
-            valoracion: valoracion,
-            imageUrl: imageUrl
-        });
+        const database = getDatabase();
+        const favoritosRef = ref(database, `favoritos/${emailPrefix}`);
 
-        console.log('Comentario agregado correctamente');
-        // Puedes despachar una acción aquí si es necesario
+        const snapshot = await get(favoritosRef);
+
+        if (snapshot.exists()) {
+            const favoritosData = snapshot.val();
+            const favoritos = Object.keys(favoritosData).filter(key => favoritosData[key] === true);
+            dispatch(setFavoritos(favoritos));
+            return favoritos;
+        } else {
+            console.warn('No hay datos de favoritos disponibles');
+            dispatch(setFavoritos([]));
+            return [];
+        }
     } catch (error) {
-        console.error('Error al agregar comentario:', error);
-        // Manejo de errores, por ejemplo despachar una acción de error
+        console.error('Error al obtener favoritos:', error.message);
+        dispatch(setFavoritos([]));
+        throw error; // Propaga el error hacia arriba
     }
 };
+
+// Acción para agregar favorito
+export const addFavorito = (emailPrefix, excursionId) => (dispatch) => {
+    const database = getDatabase();
+    const favoritosRef = ref(database, `favoritos/${emailPrefix}/${excursionId}`);
+
+    set(favoritosRef, true)
+        .then(() => {
+            console.log('Excursión añadida a favoritos');
+            dispatch(fetchFavoritos(emailPrefix)); // Actualizar la lista de favoritos después de añadir uno nuevo
+        })
+        .catch(error => {
+            console.error('Error al añadir favorito:', error.message);
+        });
+};
+
+// Acción para eliminar favorito
+export const deleteFavorito = (emailPrefix, excursionId) => (dispatch) => {
+    const database = getDatabase();
+    const favoritosRef = ref(database, `favoritos/${emailPrefix}/${excursionId}`);
+
+    set(favoritosRef, false)
+        .then(() => {
+            console.log('Excursión eliminada de favoritos');
+            dispatch(fetchFavoritos(emailPrefix)); // Actualizar la lista de favoritos después de eliminar uno
+        })
+        .catch(error => {
+            console.error('Error al eliminar favorito:', error.message);
+        });
+};
+
+// Acción para establecer la lista completa de favoritos
+export const setFavoritos = (favoritos) => ({
+    type: ActionTypes.SET_FAVORITOS,
+    payload: favoritos
+});

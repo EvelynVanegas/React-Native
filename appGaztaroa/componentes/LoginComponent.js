@@ -6,19 +6,30 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { connect } from 'react-redux';
 import { loginUser } from '../redux/ActionCreators';
-import { loggedIn } from '../redux/loggedIn';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDatabase, ref, set } from 'firebase/database';
 
 const LoginComponent = ({ navigation, loginUser }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const saveEmailToStorage = async (emailPrefix) => {
+        try {
+            await AsyncStorage.setItem('emailPrefix', emailPrefix);
+        } catch (error) {
+            console.error('Error saving email prefix to storage', error);
+        }
+    };
+
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 const user = userCredential.user;
                 Alert.alert('Inicio de sesión correcto', `Bienvenido, ${user.email}`);
+                emailPrefix = user.email.split('@')[0];
                 loginUser();
+                saveEmailToStorage(emailPrefix);
                 navigation.navigate('Campo base');
             })
             .catch(error => {
@@ -33,8 +44,21 @@ const LoginComponent = ({ navigation, loginUser }) => {
             .then(userCredential => {
                 const user = userCredential.user;
                 Alert.alert('Usuario registrado con éxito', `Bienvenido, ${user.email}`);
-                loginUser();  // Despacha la acción loginUser para actualizar el estado loggedIn
+                const emailPrefix = user.email.split('@')[0];
+                loginUser();
+                saveEmailToStorage(emailPrefix);
                 navigation.navigate('Campo base');
+
+                // Agregar entrada en la tabla de favoritos
+                const database = getDatabase();
+                const favoritosRef = ref(database, `favoritos/${emailPrefix}`);
+                const initialFavoritos = {
+                    0: false,
+                    1: false,
+                    2: false,
+                    3: false
+                };
+                set(favoritosRef, initialFavoritos);
             })
             .catch(error => {
                 const errorCode = error.code;

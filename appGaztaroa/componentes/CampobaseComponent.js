@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 import React, { Component } from 'react';
 import { View, Platform, StyleSheet, Image, Text, Button, Alert } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DrawerActions } from '@react-navigation/native';
+import { DrawerActions, useNavigation} from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -347,10 +347,12 @@ function DrawerNavegador({ loggedIn }) {
 
 function CustomDrawerContent(props) {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const handleLogout = () => {
     dispatch(logoutUser());
     Alert.alert('Se ha cerrado sesión correctamente', 'Hasta pronto');
+    navigation.navigate('Campo base');
   }
 
   return (
